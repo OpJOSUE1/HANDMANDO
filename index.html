@@ -190,14 +190,16 @@
   <fieldset id="fieldset2">
     <legend>Texto a Señas</legend>
     <input type="text" id="textenvi">
-    <button onclick="enviartextotla(getElementById='')">Traducir</button>
+    <button onclick="enviartextotla(document.getElementById('textenvi').value)">Traducir</button>
   </fieldset>
 
   <fieldset id="fieldset3">
-    <legend>Voz a Señas</legend>
-    <button onclick="startRecognition()">🎤 Empezar a Hablar</button>
-    <p id="output"></p>
+   <legend>Voz a Señas</legend>
+  <button onclick="startRecognition()">🎤 Empezar a Hablar</button>
+  <p id="output"></p>
+  <button onclick="enviarTexto(output.textContent)">Enviar texto</button>
   </fieldset>
+
 
 <script>
   function showFieldset(number) {
@@ -207,19 +209,32 @@
     document.getElementById('fieldset' + number).style.display = 'block';
   }
 
-function enviarLetra(letra) {
-  fetch(`http://3.137.153.41:3000/api/letra?valor=${letra}`)
-    .then(res => res.text())
-    .then(data => console.log("Servidor dice:", data))
-    .catch(err => console.error(err));
-}
+  // Enviar letras individuales
+  function enviarLetra(letra) {
+    fetch(`http://3.137.153.41:3000/api/letra?valor=${encodeURIComponent(letra)}`)
+      .then(res => res.text())
+      .then(data => console.log("Servidor dice:", data))
+      .catch(err => console.error(err));
+  }
 
-  function enviartextotla(letra) {
-    fetch('/letra?valor=' + letra)
+  // Enviar texto completo (del input o de voz)
+  function enviarTexto(texto) {
+    if (!texto) {
+      alert("No hay texto para enviar");
+      return;
+    }
+    fetch(`http://3.137.153.41:3000/api/letra?valor=${encodeURIComponent(texto)}`)
       .then(response => response.text())
-      .then(data => console.log("ESP dice:", data))
+      .then(data => console.log("Servidor dice:", data))
       .catch(err => console.error("Error:", err));
   }
+
+  // Para el botón Traducir del texto
+  function enviartextotla(texto) {
+    enviarTexto(texto);
+  }
+
+  // Reconocimiento de voz
   const output = document.getElementById('output');
   const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
   recognition.lang = 'es-MX';
@@ -228,12 +243,7 @@ function enviarLetra(letra) {
 
   recognition.onresult = (event) => {
     const transcript = event.results[0][0].transcript;
-    output.textContent = '';
-    for (let letra of transcript) {
-      setTimeout(() => {
-        output.textContent += letra;
-      }, 100 * transcript.indexOf(letra));
-    }
+    output.textContent = transcript;
   };
 
   recognition.onerror = (event) => {
@@ -247,4 +257,5 @@ function enviarLetra(letra) {
 </script>
 </body>
 </html>
+
 
