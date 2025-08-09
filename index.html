@@ -207,12 +207,12 @@
     document.getElementById('fieldset' + number).style.display = 'block';
   }
 
-  function enviarLetra(letra) {
-    fetch('/letra?valor=' + letra)
-      .then(response => response.text())
-      .then(data => console.log("ESP dice:", data))
-      .catch(err => console.error("Error:", err));
-  }
+function enviarLetra(letra) {
+  fetch(`http://3.137.153.41:3000/api/letra?valor=${letra}`)
+    .then(res => res.text())
+    .then(data => console.log("Servidor dice:", data))
+    .catch(err => console.error(err));
+}
 
   function enviartextotla(letra) {
     fetch('/letra?valor=' + letra)
@@ -247,3 +247,4 @@
 </script>
 </body>
 </html>
+
